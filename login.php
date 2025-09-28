@@ -11,57 +11,43 @@ require_once 'classes/Database.php';
 require_once 'classes/User.php';
 require_once 'classes/Authentication.php';
 
-$db = new Database();
-$user = new User($db);
-
-
 $message = '';
 $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
-    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirm_password'] ?? '';
     $token = $_POST['csrf_token'] ?? '';
     
     if (!Authentication::verifyCSRFToken($token)) {
         $message = 'Invalid security token. Please try again.';
         $messageType = 'error';
-    } elseif (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
+    } elseif (empty($username) || empty($password)) {
         $message = 'Please fill in all fields';
         $messageType = 'error';
-    } elseif ($password !== $confirmPassword) {
-        $message = 'Passwords do not match';
-        $messageType = 'error';
-    } elseif (strlen($password) < 6) {
-        $message = 'Password must be at least 6 characters long';
-        $messageType = 'error';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $message = 'Please enter a valid email address';
-        $messageType = 'error';
     } else {
-        
-        $result = $user->register($username, $email, $password);
+        $db = new Database();
+        $user = new User($db);
+        $result = $user->login($username, $password);
         
         $message = $result['message'];
         $messageType = $result['success'] ? 'success' : 'error';
         
         if ($result['success']) {
-            header('Location: login.php?message=Registration successful! Please login.');
+            header('Location: dashboard.php');
             exit;
         }
     }
 }
 
-$pageTitle = "Register";
+$pageTitle = "Login";
 include 'views/header.php';
 ?>
 
 <div class="auth-container">
     <div class="auth-form">
-        <h2>Register</h2>
         <link rel="stylesheet" href="assets/styles.css">
+        <h2>Login</h2>
         
         <?php if ($message): ?>
             <div class="message <?= $messageType ?>"><?= htmlspecialchars($message) ?></div>
@@ -70,13 +56,8 @@ include 'views/header.php';
         <form method="POST" action="">
             <input type="hidden" name="csrf_token" value="<?= Authentication::generateCSRFToken() ?>">
             <div class="form-group">
-                <label for="username">Username:</label>
+                <label for="username">Username or Email:</label>
                 <input type="text" id="username" name="username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
             </div>
             
             <div class="form-group">
@@ -84,16 +65,11 @@ include 'views/header.php';
                 <input type="password" id="password" name="password" required>
             </div>
             
-            <div class="form-group">
-                <label for="confirm_password">Confirm Password:</label>
-                <input type="password" id="confirm_password" name="confirm_password" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Register</button>
+            <button type="submit" class="btn btn-primary">Login</button>
         </form>
         
-        <p class="auth-link">Already have an account? <a href="login.php">Login here</a></p>
+        <p class="auth-link">Don't have an account? <a href="register.php">Register here</a></p>
     </div>
 </div>
-
+<script src="assets/script.js"></script>
 <?php include 'views/footer.php'; ?>

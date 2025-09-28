@@ -16,12 +16,12 @@
     $offset = ($page - 1 ) * $limit;
 
     //Get posts with search and pagination.....
-    $posts = $blogPost->getAllPost($search, $limit, $offset);
+    $posts = $blogPost->getAllPosts($search, $limit, $offset);
     $totalPost = $blogPost->getTotalPosts($search);
     $totalPages = ceil($totalPost / $limit);
 
     $pageTitle = "Blog Home";
-    include 'views/footer.php';
+    //include 'views/footer.php';
 ?>
 
 <div class="hero">
@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="assets/styles.css">
 <div class="search-section">
     <form action="" method="GET" class="search-form">
-        <input type="text" name="search" value="<?= htmlspecialchars($search) ?> placeholder="Search posts....." class="search-input">
+        <input type="text" name="search" value="<?= htmlspecialchars($search)?>" placeholder="Search posts....." class="search-input">
         <button type="submit" class="search-btn">Search</button>
         <?php if ($search): ?>
             <a href="index.php" class="clear-search">Clear</a>
@@ -75,7 +75,5 @@
     <?php endif; ?>
     <?php endif; ?>
 </div>
-
-
 <script src="assets/script.js"></script>
 <?php include 'views/footer.php'; ?>

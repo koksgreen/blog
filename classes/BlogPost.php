@@ -64,8 +64,10 @@
             return $this->getById($id);
         }
 
-        public function getAllPost($page = 1, $limit = 10, $search = ''){
-            $offset = ($page - 1) * $limit;
+        public function getAllPosts($page = 1, $limit = 10, $search = ''){
+            $page = (int)$page;
+            $limit = (int)$limit;
+            $offset = ($page > 0 ? $page - 1 : 0) * $limit;
             try{
                 $sql = "SELECT bp.*, u.username FROM blogposts bp JOIN users u ON bp.author_id = u.id";
                 $params = [];
