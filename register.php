@@ -58,6 +58,7 @@ include 'views/header.php';
 <div class="auth-container">
     <div class="auth-form">
         <h2>Register</h2>
+        <link rel="stylesheet" href="assets/styles.css">
         
         <?php if ($message): ?>
             <div class="message <?= $messageType ?>"><?= htmlspecialchars($message) ?></div>

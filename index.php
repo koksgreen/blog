@@ -4,6 +4,7 @@
     require_once 'classes/Database.php';
     require_once 'classes/User.php';
     require_once 'classes/BlogPost.php';
+    //require_once 'classes/Authentication.php';
 
     $db = new Database();
     $blogPost = new BlogPost($db);
@@ -27,7 +28,7 @@
     <h1>Welcome to Tactology Blog</h1>
     <p>Discover amazing stories and insights from our community</p>
 </div>
-
+<link rel="stylesheet" href="assets/styles.css">
 <div class="search-section">
     <form action="" method="GET" class="search-form">
         <input type="text" name="search" value="<?= htmlspecialchars($search) ?> placeholder="Search posts....." class="search-input">
@@ -76,5 +77,5 @@
 </div>
 
 
-
+<script src="assets/script.js"></script>
 <?php include 'views/footer.php'; ?>

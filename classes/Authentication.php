@@ -1,10 +1,10 @@
 <?php
     class Authentication{
         public static function generateCSRFToken(){
-            if(isset($_SESSION['crsf_token'])) {
-                $_SESSION['crsf_token'] = sodium_bin2hex(random_bytes(32));
+            if(!isset($_SESSION['csrf_token'])) {
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
             }
-            return $_SESSION['crsf_toekn'];
+            return $_SESSION['csrf_token'];
         }
 
         public static function verifyCSRFToken($token){
@@ -15,3 +15,4 @@
             session_regenerate_id(true);
         }
     }
+?>
