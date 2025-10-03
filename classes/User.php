@@ -51,30 +51,69 @@ class User
     //     }
     // }
 
-
-    public function login($username, $password)
-{
+public function login($username, $password) {
     try {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$username]);
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt->execute(['username' => $username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['password'])) {
-            // Start session and save user
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
+            // set session variables
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['email'] = $user['email'];
 
-            return ['success' => true, 'message' => 'Login successful!'];
-        } else {
-            return ['success' => false, 'message' => 'Invalid username or password'];
+            return [
+                'success' => true,
+                'message' => 'Login successful'
+            ];
         }
+
+        return [
+            'success' => false,
+            'message' => 'Invalid username or password'
+        ];
     } catch (PDOException $e) {
-        return ['success' => false, 'message' => 'Login failed: ' . $e->getMessage()];
+        // Log the error in real apps instead of exposing it
+        return [
+            'success' => false,
+            'message' => 'Database error: ' . $e->getMessage()
+        ];
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'message' => 'Unexpected error: ' . $e->getMessage()
+        ];
     }
 }
+
+//     public function login($username, $password)
+// {
+//     try {
+//         $stmt = $this->db->prepare("SELECT id, username, email, password FROM users WHERE username = ? OR email = ?");
+//         $stmt->execute([$username, $username]);
+//         $user = $stmt->fetch();
+
+//         if ($user && password_verify($password, $user['password'])) {
+            
+
+//             $_SESSION['user_id'] = $user['id'];
+//             $_SESSION['username'] = $user['username'];
+//             $_SESSION['email'] = $user['email'];
+
+//             return [
+//                 'id' => $user['id'],
+//                 'username' => $user['username'],
+//                 'email' => $user['email']
+//             ];
+
+//         } else {
+//             return false;
+//         }
+//     } catch (PDOException $e) {
+//         return false;
+//     }
+// }
 
 
     public function logout(){
@@ -83,7 +122,7 @@ class User
     }
 
     public function isLoggedIn(){
-        return isset($_SESSION['user_id']);
+        return isset($_SESSION['user_id'], $_SESSION['username'], $_SESSION['email']);
     }
 
     public function getCurrentUser(){

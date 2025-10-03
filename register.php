@@ -95,5 +95,5 @@ include 'views/header.php';
         <p class="auth-link">Already have an account? <a href="login.php">Login here</a></p>
     </div>
 </div>
-
+<script src="/assets/script.js"></script>
 <?php include 'views/footer.php'; ?>

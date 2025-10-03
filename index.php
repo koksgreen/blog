@@ -21,7 +21,7 @@
     $totalPages = ceil($totalPost / $limit);
 
     $pageTitle = "Blog Home";
-    //include 'views/footer.php';
+    include 'views/footer.php';
 ?>
 
 <div class="hero">
@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="assets/styles.css">
 <div class="search-section">
     <form action="" method="GET" class="search-form">
-        <input type="text" name="search" value="<?= htmlspecialchars($search)?>" placeholder="Search posts....." class="search-input">
+        <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search posts....." class="search-input">
         <button type="submit" class="search-btn">Search</button>
         <?php if ($search): ?>
             <a href="index.php" class="clear-search">Clear</a>
@@ -41,7 +41,7 @@
 
 <div class="posts-container">
     <h2>Latest Posts</h2>
-    <?php if (empty($post)): ?>
+    <?php if (empty($posts)): ?>
         <p class="no-post"> No post found. <?= $search ? 'Try a different search term.' : '' ?></p>
     <?php else: ?>
         <div class="posts-grid">

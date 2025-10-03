@@ -43,7 +43,7 @@ include 'views/header.php';
         <?php if (empty($userPosts)): ?>
             <div class="no-posts">
                 <p>You haven't created any posts yet.</p>
-                <a href="create_post.php" class="btn btn-primary">Create Your First Post</a>
+                <a href="create_Post.php" class="btn btn-primary">Create Your First Post</a>
             </div>
         <?php else: ?>
             <div class="posts-list">

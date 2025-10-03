@@ -16,7 +16,7 @@
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="dashboard.php">My Posts</a>
                     <a href="create_post.php">Create Post</a>
-                    <span class="user-info">Welcome, <?= htmlspecialchars($_SESSION['username']) ?>!</span>
+                    <span class="user-info">Welcome, <?= htmlspecialchars($_SESSION['user_id']) ?>!</span>
                     <a href="logout.php">Logout</a>
                 <?php else: ?>
                     <a href="login.php">Login</a>
