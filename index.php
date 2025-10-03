@@ -16,12 +16,12 @@
     $offset = ($page - 1 ) * $limit;
 
     //Get posts with search and pagination.....
-    $posts = $blogPost->getAllPosts($search, $limit, $offset);
+    $posts = $blogPost->getAllPosts($page, $limit, $search);
     $totalPost = $blogPost->getTotalPosts($search);
     $totalPages = ceil($totalPost / $limit);
 
     $pageTitle = "Blog Home";
-    include 'views/footer.php';
+    //include 'views/footer.php';
 ?>
 
 <div class="hero">
@@ -47,13 +47,13 @@
         <div class="posts-grid">
             <?php foreach ($posts as $post): ?>
                 <article class="post-card">
-                    <h3><a href="post.php=<?= ($post['id'])?> "><?= htmlspecialchars($post['title']) ?></a></h3>
+                    <h3><a href="post.php?id=<?= $post['id']?>"><?= htmlspecialchars($post['title']) ?></a></h3>
                     <div class="post-meta">
                         <span>By <?= htmlspecialchars($post['username']) ?></span>
                         <span><?= date('M j, Y', strtotime($post['created_at'])) ?></span>
                     </div>
                     <p class="post-excerpt"><?= htmlspecialchars(substr($post['body'], 0, 150)) ?>....</p>
-                    <a href="post.php?id=<?= $post['id'] ?>" class="read-more"></a>
+                    <a href="post.php?id=<?= $post['id'] ?>" class="read-more">Read More</a>
                 </article>
             <?php endforeach; ?>
         </div>
@@ -65,10 +65,11 @@
             <?php endif; ?>
 
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="?page=<?= $i ?><?= $search ? '&search=' . urldecode($search) : '' ?>" class="<?= $i == $page ? 'active' : '' ?><?= $i ?></a>
+                <a href="?page=<?= $i ?><?= $search ? '&search=' . urlencode($search) : '' ?>"
+                 class="<?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
             <?php endfor; ?>
 
-            <?php if ($page < $totlaPages): ?>
+            <?php if ($page < $totalPages): ?>
                 <a href="?page=<?= $page + 1 ?><?= $search ? '&search='  . urlencode($search) : '' ?>">Next &raquo;</a>
             <?php endif; ?>
         </div>

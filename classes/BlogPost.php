@@ -96,31 +96,58 @@ class BlogPost
         return $this->getById($id);
     }
 
-    public function getAllPosts($page = 1, $limit = 10, $search = '')
+    public function getAllPosts($page = 1, $limit = 10, $search = 1)
     {
-        $page = (int)$page;
+        $page = (int)$page;       // ensure it’s integer
         $limit = (int)$limit;
-        $offset = ($page > 0 ? $page - 1 : 0) * $limit;
-        try {
-            $sql = "SELECT bp.*, u.username FROM blog_posts bp JOIN users u ON bp.author_id = u.id";
-            $params = [];
-            if ($search) {
-                $sql .= "WHERE bp.title ILIKE ? OR bp.body ILIKE";
-                $$searchTerm = '%' . $search . '%';
-                $params = [$searchTerm, $searchTerm];
-            }
+        $offset = max(0, ($page - 1) * $limit);
 
-            $sql .= "ORDER BY bp.created_at DESC LIMIT ? OFFSET";
-            $params[] = $limit;
-            $params[] = $offset;
+        $sql = "SELECT bp.*, u.username 
+            FROM blog_posts bp 
+            JOIN users u ON bp.author_id = u.id";
 
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute($params);
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            return [];
+        $params = [];
+        if (!empty($search)) {
+            $sql .= " WHERE bp.title LIKE ? OR bp.body LIKE ?";
+            $searchTerm = '%' . $search . '%';
+            $params = [$searchTerm, $searchTerm];
         }
+
+        $sql .= " ORDER BY bp.created_at DESC LIMIT $limit OFFSET $offset";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+
+
+    // public function getAllPosts($page = 1, $limit = 10, $search = '')
+    // {
+    //     $page = (int)$page;
+    //     $limit = (int)$limit;
+    //     $offset = ($page > 0 ? $page - 1 : 0) * $limit;
+    //     try {
+    //         $sql = "SELECT bp.*, u.username FROM blog_posts bp JOIN users u ON bp.author_id = u.id";
+    //         $params = [];
+    //         if ($search) {
+    //             $sql .= " WHERE bp.title ILIKE ? OR bp.body LIKE ?";
+    //             $$searchTerm = '%' . $search . '%';
+    //             $params = [$searchTerm, $searchTerm];
+    //         }
+
+    //         $sql .= " ORDER BY bp.created_at DESC LIMIT ? OFFSET ?";
+    //         $params[] = $limit;
+    //         $params[] = $offset;
+
+    //         $stmt = $this->db->prepare($sql);
+    //         $stmt->execute($params);
+    //         return $stmt->fetchAll();
+    //     } catch (PDOException $e) {
+    //         return [];
+    //     }
+    // }
 
     public function getTotalPosts($search = '')
     {
@@ -128,28 +155,78 @@ class BlogPost
             $sql = "SELECT COUNT(*) FROM blog_posts bp";
             $params = [];
 
-            if ($search) {
-                $sql .= "WHERE bp.title ILIKE ? OR bp.body ILIKE ?";
+            if (!empty($search)) {
+                $sql .= " WHERE bp.title LIKE ? OR bp.body LIKE ?";
                 $searchTerm = '%' . $search . '%';
                 $params = [$searchTerm, $searchTerm];
             }
 
             $stmt = $this->db->prepare($sql);
             $stmt->execute($params);
-            return $stmt->fethColoumn();
+            return (int)$stmt->fetchColumn();
         } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage(); // temporarily to debug
             return 0;
         }
     }
 
+
+    // public function getTotalPosts($search = '')
+    // {
+    //     try {
+    //         $sql = "SELECT COUNT(*) FROM blog_posts bp";
+    //         $params = [];
+
+    //         if ($search) {
+    //             $sql .= " WHERE bp.title ILIKE ? OR bp.body LIKE ?";
+    //             $searchTerm = '%' . $search . '%';
+    //             $params = [$searchTerm, $searchTerm];
+    //         }
+
+    //         $stmt = $this->db->prepare($sql);
+    //         $stmt->execute($params);
+    //         return $stmt->fetchColumn();
+    //     } catch (PDOException $e) {
+    //         return 0;
+    //     }
+    // }
+
     public function getUserPosts($authorId, $limit = 10, $offset = 0)
     {
         try {
-            $stmt = $this->db->prepare("SELECT bp.*, u.username FROM blog_posts bp JOIN users u ON bp.author_id = u.id WHERE bp.author_id = ? ORDER BY bp.created_at DESC LIMIT ? OFFSER");
-            $stmt->execute([$authorId, $limit, $offset]);
-            return $stmt->fetchAll();
+            // Cast values to integers to prevent injection
+            $authorId = (int)$authorId;
+            $limit = (int)$limit;
+            $offset = max(0, (int)$offset);
+
+            $sql = "
+            SELECT bp.*, u.username
+            FROM blog_posts bp
+            JOIN users u ON bp.author_id = u.id
+            WHERE bp.author_id = $authorId
+            ORDER BY bp.created_at DESC
+            LIMIT $limit OFFSET $offset
+        ";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage(); // for debugging
             return [];
         }
     }
 }
+
+
+//     public function getUserPosts($authorId, $limit = 10, $offset = 0)
+//     {
+//         try {
+//             $stmt = $this->db->prepare("SELECT bp.*, u.username FROM blog_posts bp JOIN users u ON bp.author_id = u.id WHERE bp.author_id = ? ORDER BY bp.created_at DESC LIMIT ? OFFSET ?");
+//             $stmt->execute([$authorId, $limit, $offset]);
+//             return $stmt->fetchAll();
+//         } catch (PDOException $e) {
+//             return [];
+//         }
+//     }
+// }
