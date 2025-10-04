@@ -1,29 +1,52 @@
 <?php
-    session_start();
+// Show JSON in browser and Postman
+header("Content-Type: application/json");
 
-    require_once 'classes/Database.php';
-    require_once 'classes/User.php';
-    require_once 'classes/BlogPost.php';
-    require_once 'classes/Authentication.php';
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-    $db = new Database();
-    $blogPost = new BlogPost($db);
-    $user = new User($db);
+// Read JSON input
+$data = json_decode(file_get_contents("php://input"), true);
 
-    $psotId = (int)($_GET['id'] ?? 0);
-    $post = $blogPost->getById($psotId);
+// Respond with JSON
+if ($data) {
+    echo json_encode([
+        "status" => "success",
+        "received" => $data
+    ]);
+} else {
+    echo json_encode([
+        "status" => "error",
+        "message" => "No JSON received"
+    ]);
+}
 
-    if (!$post){
-        header('Location: index.php?error=Post not found');
-        exit;
-    }
+session_start();
 
-    $pageTitle = htmlspecialchars($post['title']);
-    include 'views/header.php';
+require_once 'classes/Database.php';
+require_once 'classes/User.php';
+require_once 'classes/BlogPost.php';
+require_once 'classes/Authentication.php';
+
+$db = new Database();
+$blogPost = new BlogPost($db);
+$user = new User($db);
+
+$psotId = (int)($_GET['id'] ?? 0);
+$post = $blogPost->getById($psotId);
+
+if (!$post) {
+    header('Location: index.php?error=Post not found');
+    exit;
+}
+
+$pageTitle = htmlspecialchars($post['title']);
+include 'views/header.php';
 ?>
 
-    <div class="post-container">
-        <link rel="stylesheet" href="assets/styles.css">
+<div class="post-container">
+    <link rel="stylesheet" href="assets/styles.css">
     <article class="post-detail">
         <header class="post-header">
             <h1><?= htmlspecialchars($post['title']) ?></h1>
@@ -35,24 +58,24 @@
                 <?php endif; ?>
             </div>
         </header>
-        
+
         <div class="post-content">
             <?= nl2br(htmlspecialchars($post['body'])) ?>
         </div>
-        
+
         <?php if ($user->isLoggedIn() && $user->getCurrentUser()['id'] == $post['author_id']): ?>
             <div class="post-actions">
                 <a href="edit_post.php?id=<?= $post['id'] ?>" class="btn btn-secondary">Edit Post</a>
                 <form method="POST" action="delete_post.php" style="display: inline;">
                     <input type="hidden" name="csrf_token" value="<?= Authentication::generateCSRFToken() ?>">
                     <input type="hidden" name="id" value="<?= $post['id'] ?>">
-                    <button type="submit" class="btn btn-danger" 
-                            onclick="return confirm('Are you sure you want to delete this post?')">Delete Post</button>
+                    <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this post?')">Delete Post</button>
                 </form>
             </div>
         <?php endif; ?>
     </article>
-    
+
     <div class="post-navigation">
         <a href="index.php" class="btn btn-primary">← Back to All Posts</a>
     </div>

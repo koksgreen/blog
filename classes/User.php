@@ -63,29 +63,16 @@ public function login($username, $password) {
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email'];
 
-            return [
-                'success' => true,
-                'message' => 'Login successful'
-            ];
+            // ✅ return the actual user row
+            return $user;
         }
 
-        return [
-            'success' => false,
-            'message' => 'Invalid username or password'
-        ];
+        return false; // login failed
     } catch (PDOException $e) {
-        // Log the error in real apps instead of exposing it
-        return [
-            'success' => false,
-            'message' => 'Database error: ' . $e->getMessage()
-        ];
-    } catch (Exception $e) {
-        return [
-            'success' => false,
-            'message' => 'Unexpected error: ' . $e->getMessage()
-        ];
+        return false;
     }
 }
+
 
 //     public function login($username, $password)
 // {
